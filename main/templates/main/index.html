@@ -1,31 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
 </head>
 <body>
     <h1>Welcome to {{ app_name }}</h1>
-    <p>Created by: {{ student_name }} with student ID {{ student_id }} from {{ class_name }}</p>
-
-    <h2>Product List - Sonny Angels</h2>
-    <ul>
-        {% for product in products %}
-            <li>
-                <h3>{{ product.name }} - ${{ product.price }}</h3>
-                <p>{{ product.description }}</p>
-                <p>Rarity: {{ product.rarity }}</p>
-                <p>Stock: {{ product.stock }}</p>
-                {% if product.image_url %}
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width:200px;">
-                {% endif %}
-            </li>
-        {% empty %}
-            <p>No products available.</p>
-        {% endfor %}
-    </ul>
-
-    <footer>
-
-    </footer>
+    <p>Created by: {{ student_name }} from {{ class_name }}</p>
 </body>
 </html>
