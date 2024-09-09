@@ -5,7 +5,7 @@
 **Course:** CSGE602022 Platform-Based Programming
 
 ## Deployed Application Link
-You can access the deployed application [here](http://pbp.cs.ui.ac.id/andhika.nayaka/ElectronicCommerce).
+You can access the deployed application [here](http://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/).
 
 ---
 
@@ -38,15 +38,17 @@ You can access the deployed application [here](http://pbp.cs.ui.ac.id/andhika.na
 
 Below is a diagram that shows the flow of a request from a client to a Django-based web application and the response it gives:
 
-![Django Request-Response Diagram](django_request_response_diagram.png)
+![Django Request-Response Diagram](https://www.canva.com/design/DAGQQIdblyM/AX9JJn6pbqeSwdlVB9JEAA/edit?utm_content=DAGQQIdblyM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 **Explanation:**
-- **Client Request**: A request is made from the client (e.g., a web browser).
-- **urls.py**: Maps the incoming client requests to the appropriate view functions.
-- **views.py**: Handles the request and processes any logic. It interacts with the model (`Product`) to retrieve data and sends the data to the template.
-- **models.py**: Defines the structure of the data. In this case, it defines the `Product` model which includes attributes like `name`, `price`, `description`, etc.
-- **HTML Template**: The template receives the data passed by the view and displays it in a structured format to the client.
-- **Client Response**: The processed HTML is sent back to the client for rendering.
+- **Client Request**: The client (typically a web browser) sends an HTTP request to the Django server. This request is usually for a specific URL.
+- **urls.py (URL Routing)**: The Django server receives the request and looks up the corresponding route in the `urls.py` file. This file defines which view function or class should handle a particular URL pattern.
+- **views.py (Logic Processing)**: Once a matching route is found, the request is passed to a view function or class in `views.py`. Here, the logic for handling the request is processed, including any business rules.
+- **models.py (Database Interaction)**: If the view needs to retrieve or update data, it interacts with the database using Django models. These models are defined in `models.py`, representing the structure of the data stored in the database.
+- **views.py (Prepare Data)**: After interacting with the database and processing the request, the view prepares the data (if any) to be passed to the template for rendering.
+- **HTML Template (Render Data)**: The view renders the data using an HTML template. The template receives the data and outputs an HTML page dynamically generated with the relevant content.
+- **Response to Client**: The server sends the rendered HTML page as a response back to the client. The client displays this page in the browser.
+
 
 ---
 
