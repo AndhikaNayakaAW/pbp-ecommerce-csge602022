@@ -1,0 +1,9 @@
+django
+gunicorn
+whitenoise
+psycopg2-binary
+requests
+urllib3
+asgiref==3.8.1
+Django==5.1.1
+sqlparse==0.5.1
