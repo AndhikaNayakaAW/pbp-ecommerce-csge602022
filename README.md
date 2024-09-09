@@ -38,7 +38,7 @@ You can access the deployed application [here](http://andhika-nayaka-ecommerce.p
 
 Below is a diagram that shows the flow of a request from a client to a Django-based web application and the response it gives:
 
-![<Django Request-Response Diagram>](<https://www.canva.com/design/DAGQQIdblyM/AX9JJn6pbqeSwdlVB9JEAA/edit?utm_content=DAGQQIdblyM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
+![Django Request-Response Diagram](<https://github.com/AndhikaNayakaAW/Nayaka/blob/main/Request-Response%20Cycle%20In%20A%20Django%20Web%20Application.jpg?raw=true>)
 
 **Explanation:**
 - **Client Request**: The client (typically a web browser) sends an HTTP request to the Django server. This request is usually for a specific URL.
