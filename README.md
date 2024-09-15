@@ -117,13 +117,206 @@ urlpatterns = [
 4. **Why do we need `csrf_token` in Django forms? What could happen if we did not use it?**
    - `csrf_token` is required to protect the form from Cross-Site Request Forgery (CSRF) attacks. Without `csrf_token`, attackers could trick users into submitting malicious requests. If not used, an attacker could submit unauthorized requests on behalf of a user, potentially causing damage or gaining unauthorized access.
 
-### Step-by-Step Checklist Implementation
+5. Detailed Step-by-Step Implementation
+#### Step 1: Create a Form Input to Add a Product Object
+First, I created a `forms.py` file in the `main` directory to handle the form for adding new products. The form is built using Django’s `ModelForm`, which automatically generates form fields based on the model's attributes.
 
-1. Created models in `models.py`.
-2. Implemented views for listing, adding, editing, and displaying products.
-3. Configured routing for each view in `urls.py`.
-4. Rendered the data in templates (HTML) using context passed from views.
-5. Used Django forms to handle product creation and editing.
-6. Protected forms using `csrf_token`.
-7. Accessed XML and JSON data via respective views.
-8. Deployed the application using PWS.
+In `forms.py`:
+
+```python
+from django.forms import ModelForm
+from main.models import Product
+
+class ProductForm(ModelForm):
+    class Meta:
+        model = Product
+        fields = ["name", "price", "description", "rarity", "stock", "image_url"]
+```
+
+This form includes fields to capture the product's name, price, description, rarity, stock quantity, and image URL.
+
+#### Step 2: Update `views.py` to Handle Product Creation
+
+Next, I updated the `views.py` file to add a view that handles the form submission for creating a new product. This view checks if the form is valid and, if so, saves the new product to the database and redirects the user back to the main page.
+
+In `views.py`:
+
+```python
+def add_product(request):
+    form = ProductForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        form.save()  # Save the product to the database
+        return redirect('show_main')  # Redirect to the main page
+
+    context = {'form': form}
+    return render(request, "main/add_product.html", context)  # Render the form template
+```
+
+#### Step 3: Create `add_product.html` Template
+
+I created a new HTML template to display the form where users can input the details of the new product. The form uses Django’s built-in CSRF protection and renders all fields using `form.as_table()` for simplicity.
+
+In `main/templates/main/add_product.html`:
+
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Add New Product</h1>
+
+<form method="POST">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+    <tr>
+      <td></td>
+      <td>
+        <input type="submit" value="Add Product" />
+      </td>
+    </tr>
+  </table>
+</form>
+
+{% endblock %}
+```
+
+#### Step 4: Display the Products on the Main Page
+
+In `views.py`, I modified the `show_main` view to retrieve all the products from the database and pass them to the main template for rendering.
+
+In `views.py`:
+
+```python
+def show_main(request):
+    products = Product.objects.all()  # Fetch all products
+
+    context = {
+        'app_name': 'E-Commerce Application',
+        'products': products,
+        'student_name': 'Andhika Nayaka Arya Wibowo',
+        'student_id': '2306174135',
+        'class_name': 'KKI CSGE602022 Platform-Based Programming',
+    }
+    return render(request, 'main/main.html', context)  # Render the main page
+```
+
+#### Step 5: Create the `main.html` Template
+
+The `main.html` template displays a table of products with their details such as name, price, description, and image. Additionally, an “Edit” button is added to each product that allows users to modify existing products.
+
+In `main/templates/main/main.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+</head>
+<body>
+    <h1>{{ app_name }}</h1>
+    <p><strong>NPM:</strong> {{ student_id }}</p>
+    <p><strong>Name:</strong> {{ student_name }}</p>
+    <p><strong>Class:</strong> {{ class_name }}</p>
+
+    <h2>Available Products</h2>
+
+    {% if not products %}
+        <p>There are no products available at the moment.</p>
+    {% else %}
+        <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Description and Rarity</th>
+                    <th>Stock</th>
+                    <th>Image</th>
+                    <th>Actions</th> <!-- Added a new column for actions like edit -->
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>${{ product.price }}</td>
+                    <td>{{ product.description }} <br> <strong>Rarity:</strong> {{ product.rarity }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td><img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"></td>
+                    <td>
+                        <a href="{% url 'edit_product' product.id %}">
+                            <button>Edit</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'add_product' %}">
+        <button>Add New Product</button>
+    </a>
+</body>
+</html>
+```
+
+#### Step 6: Add Views to Display Data in XML and JSON Formats
+
+I added views in `views.py` to display the list of products in both XML and JSON formats. This allows other services to consume the product data via API.
+
+In `views.py`:
+
+```python
+# XML format for all products
+def show_xml(request):
+    data = Product.objects.all()
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+# JSON format for all products
+def show_json(request):
+    data = Product.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+# XML format for product by ID
+def show_xml_by_id(request, id):
+    data = Product.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+# JSON format for product by ID
+def show_json_by_id(request, id):
+    data = Product.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+```
+
+#### Step 7: Create URL Routing for Each View
+
+I updated the `urls.py` to add routes for each of the views, including the form for adding products, and the views to display data in XML and JSON formats.
+
+In `urls.py`:
+
+```python
+from django.urls import path
+from main.views import show_main, add_product, show_xml, show_json, show_xml_by_id, show_json_by_id, index
+from .views import edit_product
+
+urlpatterns = [
+    path('', show_main, name='show_main'),
+    path('add-product/', add_product, name='add_product'),
+    path('xml/', show_xml, name='show_xml'),
+    path('json/', show_json, name='show_json'),
+    path('xml/<uuid:id>/', show_xml_by_id, name='show_xml_by_id'),
+    path('json/<uuid:id>/', show_json_by_id, name='show_json_by_id'),
+    path('index/', index, name='index'),
+    path('edit-product/<uuid:product_id>/', edit_product, name='edit_product'),
+]
+```
+
+By completing these steps, the project is now able to handle the addition, display, and editing of products as well as expose the product data via XML and JSON endpoints.
+
+
+
+
