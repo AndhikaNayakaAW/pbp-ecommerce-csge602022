@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+</head>
+<body>
+    <h1>{{ app_name }}</h1>
+    <p><strong>NPM:</strong> {{ student_id }}</p>
+    <p><strong>Name:</strong> {{ student_name }}</p>
+    <p><strong>Class:</strong> {{ class_name }}</p>
+
+    <h2>Available Products</h2>
+
+    {% if not products %}
+        <p>There are no products available at the moment.</p>
+    {% else %}
+        <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Description and Rarity</th>
+                    <th>Stock</th>
+                    <th>Image</th>
+                    <th>Actions</th> <!-- Added a new column for actions like edit -->
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>${{ product.price }}</td>
+                    <td>{{ product.description }} <br> <strong>Rarity:</strong> {{ product.rarity }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td><img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"></td>
+                    <td>
+                        <a href="{% url 'edit_product' product.id %}">
+                            <button>Edit</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <br>
+    <a href="{% url 'add_product' %}">
+        <button>Add New Product</button>
+    </a>
+</body>
+</html>

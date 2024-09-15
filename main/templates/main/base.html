@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Commerce Application{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>E-Commerce Application</h1>
+    </header>
+
+    <div>
+        {% block content %}
+        <!-- This is where the child templates will insert their content -->
+        {% endblock %}
+    </div>
+
+    <footer>
+        <p>Footer content here</p>
+    </footer>
+</body>
+</html>

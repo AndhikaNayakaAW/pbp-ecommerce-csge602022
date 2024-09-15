@@ -1,7 +1,9 @@
 from django.db import models
+import uuid  # Add this for UUID
 
 # Create your models here.
 class Product(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Use UUID for primary key
     name = models.CharField(max_length=200)  # Name of the product (Sonny Angel)
     price = models.IntegerField()  # Price of the product
     description = models.TextField()  # Description of the product
