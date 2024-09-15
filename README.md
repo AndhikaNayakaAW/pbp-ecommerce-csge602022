@@ -117,7 +117,7 @@ urlpatterns = [
 4. **Why do we need `csrf_token` in Django forms? What could happen if we did not use it?**
    - `csrf_token` is required to protect the form from Cross-Site Request Forgery (CSRF) attacks. Without `csrf_token`, attackers could trick users into submitting malicious requests. If not used, an attacker could submit unauthorized requests on behalf of a user, potentially causing damage or gaining unauthorized access.
 
-5. Detailed Step-by-Step Implementation
+5. **Detailed Step-by-Step Implementation**
 #### Step 1: Create a Form Input to Add a Product Object
 First, I created a `forms.py` file in the `main` directory to handle the form for adding new products. The form is built using Django’s `ModelForm`, which automatically generates form fields based on the model's attributes.
 
@@ -314,9 +314,18 @@ urlpatterns = [
     path('edit-product/<uuid:product_id>/', edit_product, name='edit_product'),
 ]
 ```
+Final Addition: Edit Button
+To make editing products easier, I created an "Edit" button on the main.html template. This button links to an edit form, which allows users to modify the details of an existing product. The button was added in the "Actions" column of the product table for each product. The edit_product view was created to handle the form submission for editing the product, using a similar approach as the add_product view.
 
 By completing these steps, the project is now able to handle the addition, display, and editing of products as well as expose the product data via XML and JSON endpoints.
-
-
+8. **Screenshoot**
+   **XML**
+   ![](https://github.com/AndhikaNayakaAW/Nayaka/blob/ffab9afb27e160b70ec00840b5b1e3e3265cf4e7/XML.png)
+   **XML ID**
+   ![](https://github.com/AndhikaNayakaAW/Nayaka/blob/00598ea36a81437180a76fa9242c86bf6954fcd9/XML%20ID.png)
+   **JSON**
+   ![](https://github.com/AndhikaNayakaAW/Nayaka/blob/a88700c55122b50ac51f8f303638ba77808c0269/JSON.png)
+   **JSON ID**
+   ![](https://github.com/AndhikaNayakaAW/Nayaka/blob/f056e676dfa2effc7beb75aaa16c0d10559c95f7/JSON%20ID.png)
 
 
