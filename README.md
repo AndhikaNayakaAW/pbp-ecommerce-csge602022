@@ -8,28 +8,29 @@
 You can access the deployed application [here](http://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/).
 
 ---
+## First README Assignment
 
-## 1. Implementation Checklist: Step-by-step Explanation
+### 1. Implementation Checklist: Step-by-step Explanation
 
-### Step 1: Create a New Django Project
+#### Step 1: Create a New Django Project
 - I created a new Django project named `ecommerce_project` using the command `django-admin startproject ecommerce_project`.
 
-### Step 2: Create a New App
+#### Step 2: Create a New App
 - Inside the project, I created an app called `main` using the command `python manage.py startapp main`.
   
-### Step 3: Routing Configuration
+#### Step 3: Routing Configuration
 - I configured the URLs by editing `urls.py` in the project directory and including the URL routing for the `main` app.
   
-### Step 4: Create the Model
+#### Step 4: Create the Model
 - I defined the `Product` model inside the `models.py` file of the `main` app. This model includes the mandatory attributes `name`, `price`, and `description`, as well as additional attributes like `rarity`, `stock`, and `image_url`.
 
-### Step 5: Views and Templates
+#### Step 5: Views and Templates
 - I created a function `index()` in `views.py` that retrieves all products and passes them to an HTML template (`index.html`) to display the name of the application, my name, and class.
 
-### Step 6: Add Products
+#### Step 6: Add Products
 - Using the Django shell, I added several products (Sonny Angels) with their respective details (name, price, description, etc.).
 
-### Step 7: Deployment to PWS
+#### Step 7: Deployment to PWS
 - I initialized the repository for PWS using the provided credentials and commands. Then, I pushed the code to PWS using Git and deployed the app successfully.
 
 ---
@@ -74,3 +75,55 @@ Django is a popular web framework due to several reasons that make it an ideal s
 ## 5. Why Django Model is Called an ORM
 
 Django’s model is called an ORM (Object-Relational Mapping) because it allows developers to interact with the database using Python objects, without needing to write SQL queries directly. With Django’s ORM, models represent tables in the database, and the attributes of the models represent the columns in the table. This abstraction simplifies database interactions by allowing developers to use Python code to query and manipulate the database instead of SQL.
+
+---
+
+## Second README Assignment
+
+### URL Routing for Views
+
+### URL Routing for Views
+
+I added the following URL routing for each view:
+
+```python
+from django.urls import path
+from main.views import show_main, add_product, show_xml, show_json, show_xml_by_id, show_json_by_id, index
+from .views import edit_product
+
+urlpatterns = [
+    path('', show_main, name='show_main'),
+    path('add-product/', add_product, name='add_product'),
+    path('xml/', show_xml, name='show_xml'),
+    path('json/', show_json, name='show_json'),
+    path('xml/<uuid:id>/', show_xml_by_id, name='show_xml_by_id'),
+    path('json/<uuid:id>/', show_json_by_id, name='show_json_by_id'),
+    path('index/', index, name='index'),
+    path('edit-product/<uuid:product_id>/', edit_product, name='edit_product'),
+]
+```
+
+### Explanation Questions
+
+1. **Why do we need data delivery in implementing a platform?**
+   - Data delivery is essential in platform development to ensure communication between the client and server. It allows the server to send relevant information (e.g., products, user data) to the client and receive input (e.g., form submissions) from the client, which is critical for an interactive web application.
+
+2. **Which is better, XML or JSON? Why is JSON more popular than XML?**
+   - In my opinion, JSON is better than XML for most use cases. JSON is more lightweight, easier to read and write, and is natively supported in JavaScript, which is commonly used in web applications. JSON's popularity stems from its simplicity and better performance compared to XML.
+
+3. **What is the functional usage of `is_valid()` in Django forms?**
+   - The `is_valid()` method checks if the form has been filled out correctly according to the form's validation rules. It ensures that all fields have the expected data types and formats. Without `is_valid()`, the form might save incorrect or incomplete data.
+
+4. **Why do we need `csrf_token` in Django forms? What could happen if we did not use it?**
+   - `csrf_token` is required to protect the form from Cross-Site Request Forgery (CSRF) attacks. Without `csrf_token`, attackers could trick users into submitting malicious requests. If not used, an attacker could submit unauthorized requests on behalf of a user, potentially causing damage or gaining unauthorized access.
+
+### Step-by-Step Checklist Implementation
+
+1. Created models in `models.py`.
+2. Implemented views for listing, adding, editing, and displaying products.
+3. Configured routing for each view in `urls.py`.
+4. Rendered the data in templates (HTML) using context passed from views.
+5. Used Django forms to handle product creation and editing.
+6. Protected forms using `csrf_token`.
+7. Accessed XML and JSON data via respective views.
+8. Deployed the application using PWS.
