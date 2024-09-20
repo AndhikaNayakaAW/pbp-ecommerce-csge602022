@@ -2,7 +2,7 @@
 
 ## Created by: Andhika Nayaka Arya Wibowo  
 **Student ID:** 2306174135  
-**Course:** CSGE602022 Platform-Based Programming
+**Course:** KKI CSGE602022 Platform-Based Programming
 
 ## Deployed Application Link
 You can access the deployed application [here](http://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/).
@@ -328,4 +328,97 @@ By completing these steps, the project is now able to handle the addition, displ
    **JSON ID**
    ![](https://github.com/AndhikaNayakaAW/Nayaka/blob/f056e676dfa2effc7beb75aaa16c0d10559c95f7/JSON%20ID.png)
 
+---
+## Third README Assignment
 
+### 1. What is the difference between `HttpResponseRedirect()` and `redirect()`?
+
+- **`HttpResponseRedirect()`**: This function is a low-level response object that takes a URL and creates an HTTP response redirecting the user to that URL. It is part of the Django `http` module and requires you to manually specify the target URL as a string.
+  
+  Example:
+  ```python
+  return HttpResponseRedirect('/some-url/')
+  ```
+
+- **`redirect()`**: This is a high-level utility function in Django that handles redirection more efficiently. It can take not just a URL, but also a view name and any required arguments for that view. The `redirect()` function abstracts some of the work by figuring out the URL for you if you pass it a view name or model instance.
+  
+  Example:
+  ```python
+  return redirect('some-view-name')
+  ```
+
+  In short, `redirect()` is a more convenient and flexible function that internally uses `HttpResponseRedirect()`.
+
+### 2. Explain how the `MoodEntry` model is linked with `User`!
+
+- In Django, models can be linked to the `User` model using a **ForeignKey** relationship. The `MoodEntry` model is likely linked to the `User` model by using `models.ForeignKey(User, on_delete=models.CASCADE)` in its definition. This sets up a one-to-many relationship, meaning each user can have multiple mood entries, but each `MoodEntry` is associated with exactly one user.
+
+  Example:
+  ```python
+  from django.contrib.auth.models import User
+  from django.db import models
+
+  class MoodEntry(models.Model):
+      user = models.ForeignKey(User, on_delete=models.CASCADE)
+      mood = models.CharField(max_length=100)
+      date = models.DateField(auto_now_add=True)
+  ```
+
+  Here, the `user` field in `MoodEntry` links each mood entry to a specific user.
+
+### 3. What is the difference between authentication and authorization, and what happens when a user logs in? Explain how Django implements these two concepts.
+
+- **Authentication**: This is the process of verifying a user's identity. In Django, authentication typically happens when the user submits a login form. If the credentials are correct, the user is considered authenticated.
+
+- **Authorization**: This determines what an authenticated user is allowed to do. For instance, whether the user can access a particular page or perform certain actions is part of authorization.
+
+  **When a user logs in**:
+  - Django authenticates the user by checking their username and password.
+  - Upon successful authentication, Django creates a session for the user and stores their ID in the session. This allows Django to identify the user in future requests.
+
+  **How Django implements this**:
+  - Django uses the `authenticate()` function to check credentials.
+  - If successful, `login()` is called to set up the session.
+  - For authorization, Django uses decorators like `@login_required` and permission classes like `PermissionRequiredMixin`.
+
+### 4. How does Django remember logged-in users? Explain other uses of cookies and whether all cookies are safe to use.
+
+- **Django remembers logged-in users** by using **sessions** and **cookies**. After a user logs in, Django creates a session and stores the session ID in a cookie on the user's browser. This session ID is then used on subsequent requests to identify the user. The cookie usually contains a session key like `sessionid`.
+
+- **Other uses of cookies**:
+  - Storing user preferences (like dark mode settings).
+  - Keeping track of items in a shopping cart.
+  - Analytics and tracking purposes.
+
+- **Are all cookies safe?**:
+  Not all cookies are inherently safe. It depends on how they are used and their contents:
+  - **Session cookies** used by Django are safe if used correctly.
+  - **Persistent cookies** (those that last beyond a session) can pose risks if they store sensitive information.
+  - **Secure** and **HttpOnly** flags should be used to ensure cookies are only transmitted over HTTPS and are not accessible via JavaScript.
+
+### 5. Explain how did you implement the checklist step-by-step (apart from following the tutorial).
+
+1. **Set up the Django project**: Created a new Django project and app. Defined the necessary models (like `Product` or `MoodEntry`).
+2. **Created templates**: Designed HTML templates for displaying data such as products, login, and registration forms.
+3. **Defined views**: Implemented views to handle user authentication, product management, and data rendering in the templates.
+4. **Added cookies for last login**: After successful login, I added a cookie to store the last login time and displayed it on the main page.
+5. **Set up routes**: Defined the URL patterns in `urls.py` to connect views with routes.
+6. **Tested functionality**: Thoroughly tested each feature, including login, product display, and cookie-based last login tracking.
+
+### 6. Perform add-commit-push to GitHub.
+
+1. **Add files to staging**:
+   ```bash
+   git add .
+   ```
+
+2. **Commit changes**:
+   ```bash
+   git commit -m "Implemented user login and product functionality"
+   ```
+
+3. **Push to GitHub**:
+   ```bash
+   git push origin main
+   ```
+```

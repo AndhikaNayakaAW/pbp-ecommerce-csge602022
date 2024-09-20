@@ -10,6 +10,7 @@
     <p><strong>NPM:</strong> {{ student_id }}</p>
     <p><strong>Name:</strong> {{ student_name }}</p>
     <p><strong>Class:</strong> {{ class_name }}</p>
+    <p><strong>Logged in as:</strong> {{ name }}</p>
 
     <h2>Available Products</h2>
 
@@ -36,9 +37,10 @@
                     <td>{{ product.stock }}</td>
                     <td><img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"></td>
                     <td>
-                        <a href="{% url 'edit_product' product.id %}">
+                        <a href="{% url 'main:edit_product' product.id %}">
                             <button>Edit</button>
-                        </a>
+                        </a>           
+                        
                     </td>
                 </tr>
             {% endfor %}
@@ -47,8 +49,14 @@
     {% endif %}
 
     <br>
-    <a href="{% url 'add_product' %}">
+    <a href="{% url 'main:add_product' %}">
         <button>Add New Product</button>
     </a>
+
+    <a href="{% url 'main:logout' %}">
+        <button>Logout</button>
+      </a>
+ <h5>Last login session: {{ last_login }}</h5>
+     
 </body>
 </html>
