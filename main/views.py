@@ -152,3 +152,4 @@ def add_product(request):
 
     context = {'form': form}
     return render(request, "main/add_product.html", context)
+
