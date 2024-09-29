@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}E-Commerce Application{% endblock %}</title>
+    <title>{% block title %}E-Commerce Application Sonny Angels{% endblock %}</title>
+    
+    {% load static %}
+
+    <!-- Adding Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
 </head>
-<body>
-    <header>
-        <h1>E-Commerce Application</h1>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <header class="bg-purple-700 text-white p-6">
+        <h1 class="text-3xl font-bold text-center">E-Commerce Application - Sonny Angels</h1>
     </header>
 
-    <div>
+    <main class="container mx-auto my-8">
         {% block content %}
         <!-- This is where the child templates will insert their content -->
         {% endblock %}
-    </div>
+    </main>
 
-    <footer>
-        <p>Footer content here</p>
+    <footer class="bg-purple-700 text-white text-center py-4 mt-auto">
+        <p class="text-sm">&copy; 2024 Sonny Angels E-commerce - All rights reserved</p>
     </footer>
 </body>
 </html>

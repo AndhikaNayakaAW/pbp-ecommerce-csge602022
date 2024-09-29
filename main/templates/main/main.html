@@ -4,59 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
+    <!-- Add your Tailwind CSS link if not included globally -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>{{ app_name }}</h1>
-    <p><strong>NPM:</strong> {{ student_id }}</p>
-    <p><strong>Name:</strong> {{ student_name }}</p>
-    <p><strong>Class:</strong> {{ class_name }}</p>
-    <p><strong>Logged in as:</strong> {{ name }}</p>
+<body class="bg-gray-100">
 
-    <h2>Available Products</h2>
+    {% include 'navbar.html' %} <!-- Include the updated navbar here -->
 
-    {% if not products %}
-        <p>There are no products available at the moment.</p>
-    {% else %}
-        <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Price</th>
-                    <th>Description and Rarity</th>
-                    <th>Stock</th>
-                    <th>Image</th>
-                    <th>Actions</th> <!-- Added a new column for actions like edit -->
-                </tr>
-            </thead>
-            <tbody>
-            {% for product in products %}
-                <tr>
-                    <td>{{ product.name }}</td>
-                    <td>${{ product.price }}</td>
-                    <td>{{ product.description }} <br> <strong>Rarity:</strong> {{ product.rarity }}</td>
-                    <td>{{ product.stock }}</td>
-                    <td><img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"></td>
-                    <td>
-                        <a href="{% url 'main:edit_product' product.id %}">
-                            <button>Edit</button>
-                        </a>           
-                        
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+    <div class="container mx-auto mt-20"> <!-- Added margin to prevent overlap with the fixed navbar -->
+        <h1 class="text-3xl font-bold">{{ app_name }}</h1>
+        <p><strong>NPM:</strong> {{ student_id }}</p>
+        <p><strong>Name:</strong> {{ student_name }}</p>
+        <p><strong>Class:</strong> {{ class_name }}</p>
+        <p><strong>Logged in as:</strong> {{ name }}</p>
 
-    <br>
-    <a href="{% url 'main:add_product' %}">
-        <button>Add New Product</button>
-    </a>
+        <h2 class="text-2xl mt-8 font-semibold">Available Sonny Angels</h2>
 
-    <a href="{% url 'main:logout' %}">
-        <button>Logout</button>
-      </a>
- <h5>Last login session: {{ last_login }}</h5>
-     
+        {% if not products %}
+            <p class="mt-4">There are no products available at the moment.</p>
+        {% else %}
+            <table class="mt-4 border-collapse w-full bg-white shadow-md rounded-lg overflow-hidden">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-4 py-2">Product Name</th>
+                        <th class="px-4 py-2">Price</th>
+                        <th class="px-4 py-2">Description and Rarity</th>
+                        <th class="px-4 py-2">Stock</th>
+                        <th class="px-4 py-2">Image</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for product in products %}
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ product.name }}</td>
+                        <td class="px-4 py-2">${{ product.price }}</td>
+                        <td class="px-4 py-2">{{ product.description }} <br> <strong>Rarity:</strong> {{ product.rarity }}</td>
+                        <td class="px-4 py-2">{{ product.stock }}</td>
+                        <td class="px-4 py-2">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-24 h-auto rounded">
+                        </td>
+                        <td class="px-4 py-2 flex space-x-2">
+                            <a href="{% url 'main:edit_product' product.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition duration-300">Edit</a>
+                            <a href="{% url 'main:delete_product' product.id %}" onclick="return confirm('Are you sure you want to delete this product?');" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <div class="mt-6">
+            <a href="{% url 'main:add_product' %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300">Add New Sonny Angel</a>
+        </div>
+
+        <h5 class="mt-8">Last login session: {{ last_login }}</h5>
+    </div>
 </body>
 </html>

@@ -1,19 +1,18 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core import serializers
-from django.shortcuts import render, redirect
-from main.forms import ProductForm  # Import the ProductForm
-from main.models import Product  # Import the Product model
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-import datetime
-from django.http import HttpResponseRedirect
+from django.contrib import messages
 from django.urls import reverse
 from django.utils.timezone import now
+
+
+from main.forms import ProductForm  # Import the ProductForm
+from main.models import Product  # Import the Product model
+
+import datetime
 
 # Existing index view
 def index(request):
@@ -23,9 +22,8 @@ def index(request):
         'student_name': 'Andhika Nayaka Arya Wibowo',
         'student_id': '2306174135',
         'class_name': 'KKI CSGE602022 Platform-Based Programming',
-        'last_login': request.COOKIES['last_login'],
+        'last_login': request.COOKIES.get('last_login', 'Unknown'),
         'name': request.user.username,
-
     }
     return render(request, 'main/index.html', context)
 
@@ -45,16 +43,18 @@ def update_product_images():
         product2.description = "A rare secret edition Sonny Angel minifigure from Series Dinosaur, Rarity (Secret)"
         product2.save()
 
-# View to add a new product
+@login_required  # Ensure the user is logged in
 def add_product(request):
-    form = ProductForm(request.POST or None)
-
-    if form.is_valid() and request.method == "POST":
-        form.save()  # Save the product to the database
-        return redirect('show_main')  # Redirect to the main page
-
-    context = {'form': form}
-    return render(request, "main/add_product.html", context)  # Render the form template
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.user = request.user  # Assign the logged-in user to the product
+            product.save()
+            return redirect('main:show_main')  # Redirect to the main page instead of the product list
+    else:
+        form = ProductForm()
+    return render(request, 'main/add_product.html', {'form': form})
 
 # View to display products on the main page
 @login_required(login_url='/login')
@@ -106,6 +106,7 @@ def edit_product(request, product_id):
     context = {'form': form}
     return render(request, "main/edit_product.html", context)
 
+# User registration view
 def register(request):
     form = UserCreationForm()
 
@@ -118,6 +119,7 @@ def register(request):
     context = {'form':form}
     return render(request, 'register.html', context)
 
+# User login view
 def login_user(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -135,21 +137,22 @@ def login_user(request):
     context = {'form': form}
     return render(request, 'login.html', context)
 
-
+# User logout view
 def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return response
 
-def add_product(request):
-    form = ProductForm(request.POST or None)
-    if form.is_valid() and request.method == "POST":
-        product = form.save(commit=False)
-        product.user = request.user  # Associate the product with the logged-in user
-        product.save()
-        return redirect('main:show_main')
+def delete_product(request, product_id):
+    # Get product based on id
+    product = get_object_or_404(Product, id=product_id)
+    # Delete product
+    product.delete()
+    # Return to the main page
+    return HttpResponseRedirect(reverse('main:show_main'))
 
-    context = {'form': form}
-    return render(request, "main/add_product.html", context)
+def product_list(request):
+    products = Product.objects.all()  # Fetch all products
+    return render(request, 'main/product_list.html', {'products': products})
 

@@ -12,26 +12,247 @@ You can access the deployed application [here](http://andhika-nayaka-ecommerce.p
 
 ### 1. Implementation Checklist: Step-by-step Explanation
 
-#### Step 1: Create a New Django Project
-- I created a new Django project named `ecommerce_project` using the command `django-admin startproject ecommerce_project`.
+### Step 1: **Create a New Django Project**
 
-#### Step 2: Create a New App
-- Inside the project, I created an app called `main` using the command `python manage.py startapp main`.
+- First, I set up a virtual environment to isolate my Django project dependencies. This ensures that the Python packages installed for this project don’t conflict with others.
   
-#### Step 3: Routing Configuration
-- I configured the URLs by editing `urls.py` in the project directory and including the URL routing for the `main` app.
+  **Command to create a virtual environment:**
+  ```bash
+  python -m venv env
+  ```
+
+- I activated the virtual environment using the following command:
+
+  **For macOS/Linux:**
+  ```bash
+  source env/bin/activate
+  ```
+
+  **For Windows:**
+  ```bash
+  .\env\Scripts\activate
+  ```
+
+- After activating the virtual environment, I installed Django by running the following command:
+
+  ```bash
+  pip install django
+  ```
+
+- Then, I created the Django project named `ecommerce_project` using Django’s `startproject` command:
   
-#### Step 4: Create the Model
-- I defined the `Product` model inside the `models.py` file of the `main` app. This model includes the mandatory attributes `name`, `price`, and `description`, as well as additional attributes like `rarity`, `stock`, and `image_url`.
+  ```bash
+  django-admin startproject ecommerce_project
+  ```
 
-#### Step 5: Views and Templates
-- I created a function `index()` in `views.py` that retrieves all products and passes them to an HTML template (`index.html`) to display the name of the application, my name, and class.
+  This command generates the basic project structure, including:
+  - `manage.py`: The command-line utility to interact with the Django project.
+  - `ecommerce_project/`: A directory containing project settings and configuration files like `settings.py`, `urls.py`, and `wsgi.py`.
 
-#### Step 6: Add Products
-- Using the Django shell, I added several products (Sonny Angels) with their respective details (name, price, description, etc.).
+---
 
-#### Step 7: Deployment to PWS
-- I initialized the repository for PWS using the provided credentials and commands. Then, I pushed the code to PWS using Git and deployed the app successfully.
+### Step 2: **Create a New App**
+
+- Inside the `ecommerce_project` directory, I created a new Django app named `main`. Apps in Django are self-contained modules that handle specific functionality (in this case, product management).
+
+  **Command to create the `main` app:**
+  ```bash
+  python manage.py startapp main
+  ```
+
+  This command created a new directory `main/` with important files like:
+  - `models.py`: Where the data models (database tables) are defined.
+  - `views.py`: Where the logic for processing requests and rendering responses is written.
+  - `forms.py`: For handling forms in Django (created later).
+  - `urls.py`: For routing URLs to specific views (added later).
+
+- I added the `main` app to the `INSTALLED_APPS` list in `settings.py` to let Django know about the existence of this app:
+
+  ```python
+  INSTALLED_APPS = [
+      'django.contrib.admin',
+      'django.contrib.auth',
+      'django.contrib.contenttypes',
+      'django.contrib.sessions',
+      'django.contrib.messages',
+      'django.contrib.staticfiles',
+      'main',  # Add the main app here
+  ]
+  ```
+
+---
+
+### Step 3: **Routing Configuration**
+
+- Next, I set up URL routing to connect the views (that handle requests) with specific URL patterns. In Django, the `urls.py` file is where you define the mapping between URLs and the views that handle them.
+
+- In `ecommerce_project/urls.py`, I included the `main` app’s URLs:
+
+  ```python
+  from django.contrib import admin
+  from django.urls import path, include
+
+  urlpatterns = [
+      path('admin/', admin.site.urls),
+      path('', include('main.urls')),  # Include the URLs from the main app
+  ]
+  ```
+
+- Then, I created a `urls.py` file inside the `main` app to define the specific routes for product-related views, like the main product listing page, adding a product, etc.
+
+  Example `urls.py` in the `main` app:
+  ```python
+  from django.urls import path
+  from . import views
+
+  urlpatterns = [
+      path('', views.index, name='index'),  # Route for the homepage
+      path('add-product/', views.add_product, name='add_product'),
+      # Other routes for product-related views
+  ]
+  ```
+
+---
+
+### Step 4: **Create the Model**
+
+- In Django, models define the structure of the database tables. I defined a `Product` model inside `models.py` to store information about each product.
+
+- The `Product` model includes attributes like `name`, `price`, `description`, `rarity`, `stock`, and `image_url`.
+
+  **Code for the `Product` model:**
+  ```python
+  from django.db import models
+
+  class Product(models.Model):
+      name = models.CharField(max_length=100)
+      price = models.DecimalField(max_digits=10, decimal_places=2)
+      description = models.TextField()
+      rarity = models.CharField(max_length=50)
+      stock = models.PositiveIntegerField()
+      image_url = models.URLField(max_length=200, blank=True, null=True)
+      
+      def __str__(self):
+          return self.name
+  ```
+
+- After defining the model, I created and applied the migrations to set up the database:
+
+  **Command to create migrations:**
+  ```bash
+  python manage.py makemigrations
+  ```
+
+  **Command to apply migrations and create the database table:**
+  ```bash
+  python manage.py migrate
+  ```
+
+---
+
+### Step 5: **Views and Templates**
+
+- In `views.py`, I created the `index` view that retrieves all the products from the database and passes them to an HTML template for display. The view uses Django’s ORM (Object-Relational Mapper) to interact with the database and fetch product records.
+
+  **Code for the `index` view:**
+  ```python
+  from django.shortcuts import render
+  from .models import Product
+
+  def index(request):
+      products = Product.objects.all()  # Query all products from the database
+      context = {
+          'products': products,
+          'app_name': 'E-Commerce Application',
+          'student_name': 'Andhika Nayaka Arya Wibowo',
+          'student_id': '2306174135',
+          'class_name': 'KKI CSGE602022 Platform-Based Programming',
+      }
+      return render(request, 'main/index.html', context)  # Render the index.html template
+  ```
+
+- Next, I created the `index.html` template inside the `templates/main/` directory. This template is responsible for displaying the name of the app, my details (name, student ID, and class), and the list of products.
+
+  **Example of `index.html`:**
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>{{ app_name }}</title>
+  </head>
+  <body>
+      <h1>{{ app_name }}</h1>
+      <p><strong>NPM:</strong> {{ student_id }}</p>
+      <p><strong>Name:</strong> {{ student_name }}</p>
+      <p><strong>Class:</strong> {{ class_name }}</p>
+
+      <h2>Available Products</h2>
+
+      {% if not products %}
+          <p>No products are available at the moment.</p>
+      {% else %}
+          <ul>
+              {% for product in products %}
+                  <li>{{ product.name }} - ${{ product.price }}</li>
+              {% endfor %}
+          </ul>
+      {% endif %}
+  </body>
+  </html>
+  ```
+
+---
+
+### Step 6: **Add Products**
+
+- I manually added products using Django’s interactive shell. The shell allows direct interaction with the Django models and database.
+
+  **Command to open the Django shell:**
+  ```bash
+  python manage.py shell
+  ```
+
+- Inside the shell, I created new products by instantiating the `Product` model and saving them to the database:
+
+  **Code to add products in the shell:**
+  ```python
+  from main.models import Product
+
+  product1 = Product(name='Sonny Angel - Series Dinosaur', price=100, description='A cute Sonny Angel minifigure from Series Dinosaur', rarity='Common', stock=20)
+  product1.save()
+
+  product2 = Product(name='Sonny Angel - Secret Dinosaur Edition', price=300, description='A rare secret edition Sonny Angel minifigure from Series Dinosaur', rarity='Secret', stock=2)
+  product2.save()
+  ```
+
+- After adding several products, I confirmed they were displayed correctly on the product list page (`index.html`).
+
+---
+
+### Step 7: **Deployment to PWS**
+
+- I prepared the project for deployment on PWS (Platform Web Service) by pushing the code to the repository.
+  
+- First, I initialized the project repository using Git, added the project files, and committed the changes:
+
+  **Commands to initialize the Git repository and push code:**
+  ```bash
+  git init
+  git add .
+  git commit -m "Initial commit with product management functionality"
+  ```
+
+- I then configured the remote repository with the credentials provided by PWS, pushed the code, and deployed the app successfully.
+
+  **Commands to push code to PWS and deploy:**
+  ```bash
+  git remote add origin https://pws-url.git
+  git push -u origin main
+  ```
+
+- After deployment, I accessed the live application at the provided URL and verified that the product management features were working correctly.
 
 ---
 
@@ -398,13 +619,233 @@ By completing these steps, the project is now able to handle the addition, displ
 
 ### 5. Explain how did you implement the checklist step-by-step (apart from following the tutorial).
 
-1. **Set up the Django project**: Created a new Django project and app. Defined the necessary models (like `Product` or `MoodEntry`).
-2. **Created templates**: Designed HTML templates for displaying data such as products, login, and registration forms.
-3. **Defined views**: Implemented views to handle user authentication, product management, and data rendering in the templates.
-4. **Added cookies for last login**: After successful login, I added a cookie to store the last login time and displayed it on the main page.
-5. **Set up routes**: Defined the URL patterns in `urls.py` to connect views with routes.
-6. **Tested functionality**: Thoroughly tested each feature, including login, product display, and cookie-based last login tracking.
+---
 
+### Step 1: **Set up the Django Project**
+
+- First, I created a virtual environment for the project to isolate dependencies, ensuring a clean working environment for my Django app.
+  
+  **Command to create a virtual environment:**
+  ```bash
+  python -m venv env
+  ```
+
+  I activated the virtual environment using:
+
+  **For macOS/Linux:**
+  ```bash
+  source env/bin/activate
+  ```
+
+  **For Windows:**
+  ```bash
+  .\env\Scripts\activate
+  ```
+
+- With the environment active, I installed Django using pip:
+
+  ```bash
+  pip install django
+  ```
+
+- I then created a new Django project using the following command:
+
+  ```bash
+  django-admin startproject ecommerce_project
+  ```
+
+  This generated the initial project files, including `manage.py` for project management, and the main project directory `ecommerce_project` containing configuration files like `settings.py`, `urls.py`, etc.
+
+- To manage the specific product-related logic, I created a new app called `main`:
+
+  ```bash
+  python manage.py startapp main
+  ```
+
+  This created a new directory `main/` for the app’s models, views, templates, and other functionality.
+
+- Next, I added the `main` app to the `INSTALLED_APPS` list in `settings.py` to let Django know that this app is part of the project:
+
+  ```python
+  INSTALLED_APPS = [
+      'django.contrib.admin',
+      'django.contrib.auth',
+      'django.contrib.contenttypes',
+      'django.contrib.sessions',
+      'django.contrib.messages',
+      'django.contrib.staticfiles',
+      'main',  # Register the main app
+  ]
+  ```
+
+---
+
+### Step 2: **Created Templates**
+
+- I set up the directory structure for templates in the `main` app by creating a `templates` folder inside the `main` directory. Within this, I created another `main` folder to house all the HTML files.
+
+  **Directory structure:**
+  ```
+  main/
+    templates/
+      main/
+        base.html
+        index.html
+        add_product.html
+        login.html
+        register.html
+  ```
+
+- For each view (e.g., product list, login, registration), I designed corresponding templates. For example:
+
+  **Example of `index.html`:**
+
+  ```html
+  {% extends 'base.html' %}
+
+  {% block content %}
+  <h1>Product List</h1>
+
+  {% if not products %}
+      <p>No products available at the moment.</p>
+  {% else %}
+      <ul>
+      {% for product in products %}
+          <li>{{ product.name }} - ${{ product.price }}</li>
+      {% endfor %}
+      </ul>
+  {% endif %}
+  {% endblock %}
+  ```
+
+- Each page was designed to be simple but functional, focusing on displaying relevant data like products, form inputs, and user information.
+
+---
+
+### Step 3: **Defined Views**
+
+- I implemented views in `views.py` to handle user interactions and data rendering. These views retrieve data from the database and pass it to the templates.
+
+- **Example: `index` view for product listing:**
+
+  ```python
+  from django.shortcuts import render
+  from .models import Product
+
+  def index(request):
+      products = Product.objects.all()
+      context = {
+          'products': products,
+          'app_name': 'E-Commerce Application',
+          'student_name': 'Andhika Nayaka Arya Wibowo',
+          'student_id': '2306174135',
+          'class_name': 'KKI CSGE602022 Platform-Based Programming',
+      }
+      return render(request, 'main/index.html', context)
+  ```
+
+- I also created views to handle form submissions for user login, registration, and product management (add, edit, delete). Each view used Django’s form handling and validation mechanisms, ensuring data was correctly processed before being saved to the database.
+
+- **Example: `add_product` view:**
+
+  ```python
+  from django.shortcuts import redirect
+  from .forms import ProductForm
+
+  def add_product(request):
+      form = ProductForm(request.POST or None)
+      
+      if request.method == 'POST' and form.is_valid():
+          form.save()
+          return redirect('index')
+      
+      return render(request, 'main/add_product.html', {'form': form})
+  ```
+
+---
+
+### Step 4: **Added Cookies for Last Login**
+
+- To enhance the user experience, I implemented cookies to track and display the user’s last login time.
+
+- After a user successfully logs in, I saved the current time as a cookie using `HttpResponse.set_cookie()`.
+
+  **Code to set the last login cookie in `login_user` view:**
+  
+  ```python
+  from django.utils.timezone import now
+  from django.http import HttpResponseRedirect
+  from django.contrib.auth import login
+
+  def login_user(request):
+      form = AuthenticationForm(data=request.POST)
+
+      if form.is_valid():
+          user = form.get_user()
+          login(request, user)
+          
+          # Save last login time in a cookie
+          response = HttpResponseRedirect(reverse('index'))
+          response.set_cookie('last_login', now().strftime('%Y-%m-%d %H:%M:%S'))
+          return response
+  ```
+
+- On the homepage (`index.html`), I retrieved the `last_login` cookie and displayed it for the user:
+
+  **Code to display last login:**
+  ```html
+  <p>Last login session: {{ last_login }}</p>
+  ```
+
+  **View to retrieve and pass the last login cookie to the template:**
+
+  ```python
+  def index(request):
+      last_login = request.COOKIES.get('last_login', 'Unknown')
+      context = {
+          'last_login': last_login,
+          'app_name': 'E-Commerce Application',
+          # Other context data
+      }
+      return render(request, 'main/index.html', context)
+  ```
+
+---
+
+### Step 5: **Set Up Routes**
+
+- I defined URL patterns in the `urls.py` file to route requests to the appropriate views. Each route corresponds to a specific view, such as showing the product list or processing a product form.
+
+- **Example `urls.py`:**
+
+  ```python
+  from django.urls import path
+  from .views import index, add_product, login_user
+
+  urlpatterns = [
+      path('', index, name='index'),
+      path('add-product/', add_product, name='add_product'),
+      path('login/', login_user, name='login'),
+  ]
+  ```
+
+  This routing file ensures that when users visit specific URLs (e.g., `/add-product/`), the correct view is executed, and the appropriate template is rendered.
+
+---
+
+### Step 6: **Tested Functionality**
+
+- Before final deployment, I thoroughly tested each feature to ensure they worked as expected:
+
+  1. **Login Functionality**: I ensured that the user could log in and that the `last_login` cookie was correctly set and displayed on the homepage.
+  
+  2. **Product Management**: I tested the add, edit, and delete product functionalities. This involved filling out forms, validating data, and checking if products were saved to or removed from the database.
+
+  3. **Cookies**: I verified that cookies were handled properly. After logging in, I ensured the last login time was stored in the browser’s cookies and displayed when the user revisited the site.
+
+  4. **UI Responsiveness**: I tested the frontend design to ensure that the product list, forms, and other components displayed properly on both desktop and mobile devices. I used a combination of CSS frameworks and custom styling to make sure the site was visually appealing and functional.
+
+---
 ### 6. Perform add-commit-push to GitHub.
 
 1. **Add files to staging**:
@@ -422,3 +863,282 @@ By completing these steps, the project is now able to handle the addition, displ
    git push origin main
    ```
 ```
+Here’s how you can structure and answer the questions in your README.md file in detail:
+
+---
+
+# E-Commerce Application - README
+
+## Created by: Andhika Nayaka Arya Wibowo  
+**Student ID:** 2306174135  
+**Course:** KKI CSGE602022 Platform-Based Programming
+
+## Deployed Application Link
+You can access the deployed application [here](http://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/).
+
+---
+
+## Fourth Assignment: Advanced Web Design Concepts
+
+### 1. CSS Selector Priority
+
+If there are multiple CSS selectors for an HTML element, the browser uses the **CSS specificity** to decide which style to apply. The order of priority for CSS selectors is as follows:
+
+1. **Inline styles** (added directly to an element’s "style" attribute) have the highest priority.
+   - Example: `<p style="color: red;">Hello</p>`
+2. **ID selectors** (`#id`) have the next level of priority.
+   - Example: `#header { color: blue; }`
+3. **Class selectors** (`.class`), **attribute selectors** (`[type="text"]`), and **pseudo-classes** (`:hover`, `:focus`) are applied next.
+   - Example: `.button { color: green; }`
+4. **Element selectors** (like `div`, `p`, `a`) and **pseudo-elements** (`::before`, `::after`) have the lowest priority.
+   - Example: `p { color: black; }`
+
+In cases where selectors have equal specificity, the **order of appearance** in the stylesheet matters, with the latest rule overriding the earlier one. Additionally, the `!important` declaration can override all other rules, but it should be used sparingly to avoid complications.
+
+---
+
+### 2. Importance of Responsive Design
+
+Responsive design ensures that a web application adjusts smoothly to different screen sizes and devices, improving the user experience on both desktop and mobile devices. It has become crucial due to the diversity of devices used to access websites, ranging from smartphones to large desktop monitors.
+
+- **Why it’s important**:
+   - Enhances accessibility across devices with varying screen sizes.
+   - Improves user experience, leading to better engagement and conversion rates.
+   - Reduces the need to maintain separate websites for mobile and desktop.
+
+**Example of an application with responsive design**:  
+Facebook’s web version dynamically adjusts its layout based on screen size, ensuring a good experience on both mobile phones and desktops.
+
+**Example of an application without responsive design**:  
+An older version of Reddit didn’t have responsive design, forcing users on mobile devices to zoom in and scroll horizontally to read content. This has since been updated.
+
+---
+
+### 3. Differences Between Margin, Border, and Padding
+
+- **Margin**: The space **outside** the border of an element. It creates distance between the element and other elements around it.
+   - Example: `margin: 20px;`
+   - This creates a 20-pixel gap around the element.
+
+- **Border**: The **outline** around the padding and content of an element. It is a visible line that surrounds the element.
+   - Example: `border: 2px solid black;`
+   - This adds a 2-pixel black solid line around the element.
+
+- **Padding**: The space **inside** the border, between the border and the element’s content. Padding controls the space between the content and the edge of the element.
+   - Example: `padding: 10px;`
+   - This adds a 10-pixel gap between the content and the border.
+
+Together, margin, border, and padding define the spacing and appearance of elements on the page, and understanding their use is critical for layout design.
+
+---
+
+### 4. Flexbox and Grid Layout
+
+- **Flexbox**:
+   - Flexbox is a layout model that allows elements to align and distribute space within a container dynamically, either in rows or columns. It’s ideal for building layouts where items need to be equally spaced or dynamically resized.
+   - **Example**: A row of buttons that expands or contracts to fit the container width.
+   - Key properties: `display: flex;`, `justify-content`, `align-items`, `flex-direction`.
+
+- **Grid Layout**:
+   - Grid layout provides a more structured and two-dimensional way to lay out elements, dividing the page into rows and columns. It is particularly useful for more complex layouts where both horizontal and vertical alignment is important.
+   - **Example**: A photo gallery where images are displayed in a grid of rows and columns.
+   - Key properties: `display: grid;`, `grid-template-columns`, `grid-gap`.
+
+---
+
+### 5. Step-by-Step Implementation of the Checklist
+
+---
+
+### 1. **Implement Functions to Delete and Edit Products**
+
+#### a. **Edit Product Functionality**:
+- I started by creating a view function in `views.py` to handle product editing. The function retrieves the specific product using its unique `id`, then displays its details in a form for editing.
+- I used Django's `ModelForm` to populate the form with the product's existing data. This allows users to make changes to the fields like `name`, `price`, `description`, and `stock`.
+  
+   **Code for the edit function:**
+   ```python
+   def edit_product(request, product_id):
+       product = get_object_or_404(Product, id=product_id)
+       form = ProductForm(request.POST or None, instance=product)
+   
+       if form.is_valid() and request.method == "POST":
+           form.save()
+           # Redirect to the main page after editing
+           return redirect('main:show_main')
+   
+       context = {'form': form}
+       return render(request, "main/edit_product.html", context)
+   ```
+
+- I added an "Edit" button for each product in the product list. This button is placed within each product card, making it easy for users to directly navigate to the edit form of the corresponding product.
+  
+   **Code for the edit button:**
+   ```html
+   <td>
+       <a href="{% url 'main:edit_product' product.id %}">
+           <button>Edit</button>
+       </a>           
+   </td>
+   ```
+
+#### b. **Delete Product Functionality**:
+- For the delete functionality, I created a separate view that uses the product's `id` to find and delete the product from the database. Before deletion, I added a confirmation prompt to ensure the user intends to delete the product.
+  
+   **Code for the delete function:**
+   ```python
+   def delete_product(request, product_id):
+       product = get_object_or_404(Product, id=product_id)
+       product.delete()  # Delete the product from the database
+       return HttpResponseRedirect(reverse('main:show_main'))
+   ```
+
+- I added a "Delete" button within each product card. This button triggers the delete view, and when clicked, it asks for confirmation using JavaScript (`onclick="return confirm('Are you sure you want to delete this product?');"`).
+  
+   **Code for the delete button:**
+   ```html
+   <td>
+       <a href="{% url 'main:delete_product' product.id %}" onclick="return confirm('Are you sure you want to delete this product?');">
+           <button>Delete</button>
+       </a>
+   </td>
+   ```
+
+---
+
+### 2. **Customize the Design of HTML Templates Using Tailwind CSS**
+
+#### a. **Login, Register, and Add Product Pages Customization**:
+- I applied **Tailwind CSS** to the login, registration, and add product pages to enhance the visual appeal and make the forms user-friendly.
+  
+   **Login Page Customization:**
+   - Added a centered layout using Tailwind’s flexbox utilities (`flex`, `justify-center`, `items-center`) to align the form in the center of the page.
+   - Tailwind form input classes (`input`, `bg-gray-200`, `focus:border-blue-500`, etc.) were applied to style the input fields and buttons, ensuring they look clean and modern.
+
+   **Example of form styling in login.html**:
+   ```html
+   <form method="POST" class="bg-white p-6 rounded-lg shadow-md max-w-sm mx-auto">
+       {% csrf_token %}
+       <div>
+           {{ form.as_p }}
+       </div>
+       <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+           Login
+       </button>
+   </form>
+   ```
+
+   **Add Product Page Customization:**
+   - I used the same Tailwind classes to make the form responsive and visually appealing. The form has clear input fields, spacing, and buttons with hover effects.
+   - This page also includes a section for the product image URL, which allows users to visually associate an image with the product.
+
+#### b. **Product List Page Customization**:
+- I implemented a card-based layout using **Tailwind CSS** to display each product’s details (name, price, description, stock, and image).
+  
+   **Code for product card styling:**
+   ```html
+   <div class="bg-white shadow-md rounded-lg p-6 mb-4">
+       <h3 class="text-xl font-bold">{{ product.name }}</h3>
+       <p class="text-gray-600">Price: ${{ product.price }}</p>
+       <p class="text-gray-600">Stock: {{ product.stock }}</p>
+       <p class="text-gray-600">Description: {{ product.description }}</p>
+       <p class="text-gray-600">Rarity: {{ product.rarity }}</p>
+       <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-32 h-32 object-cover">
+   </div>
+   ```
+
+- I applied flexbox utilities (`flex`, `flex-wrap`) to ensure the cards are responsive and adjust automatically based on the screen size. On smaller screens, the cards stack vertically, while on larger screens, they are displayed in a grid.
+
+#### c. **Responsive Design Implementation**:
+- The layout automatically adjusts for different screen sizes (mobile, tablet, desktop) using **Tailwind’s responsive utilities**. I used the following key classes for responsiveness:
+   - `w-full sm:w-1/2 lg:w-1/4`: This makes each product card take full width on small screens, half the width on medium screens, and one-fourth of the width on larger screens.
+   - `hidden md:flex`: I used this class to hide elements on smaller screens and only show them on medium or larger screens (for example, showing the full navbar).
+
+- **Handling No Products Scenario**:
+   - If no products are available, I implemented logic in the `product_list.html` to show a custom message and a placeholder image instead of an empty product table.
+  
+   **Code for no products check**:
+   ```html
+   {% if not products %}
+       <div class="flex justify-center items-center h-screen">
+           <img src="{% static 'image/no-products.png' %}" alt="No products available" class="w-1/2 h-auto">
+           <p class="text-xl">There are no products registered.</p>
+       </div>
+   {% endif %}
+   ```
+
+---
+
+### 3. **Navigation Bar (Navbar) Implementation**
+
+#### a. **Responsive Navbar Design**:
+- I designed a **responsive navbar** using Tailwind CSS that works both on desktop and mobile devices.
+- On **desktop**, the navbar displays the links horizontally, while on **mobile**, the navbar collapses into a hamburger menu for better usability.
+
+   **Code for navbar implementation (in `navbar.html`)**:
+   ```html
+   <nav class="bg-indigo-600 shadow-lg fixed top-0 left-0 z-40 w-screen">
+       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div class="flex items-center justify-between h-16">
+               <h1 class="text-2xl font-bold text-white">Sonny Angels E-Commerce</h1>
+               <div class="hidden md:flex items-center">
+                   {% if user.is_authenticated %}
+                       <span class="text-gray-300 mr-4">Welcome, {{ user.username }}</span>
+                       <a href="{% url 'main:logout' %}" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                           Logout
+                       </a>
+                   {% else %}
+                       <a href="{% url 'main:login' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                           Login
+                       </a>
+                   {% endif %}
+               </div>
+               <div class="md:hidden">
+                   <button class="mobile-menu-button">
+                       <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                       </svg>
+                   </button>
+               </div>
+           </div>
+       </div>
+       <div class="mobile-menu hidden md:hidden px-4 w-full">
+           {% if user.is_authenticated %}
+               <span class="block text-gray-300 px-3 py-2">Welcome, {{ user.username }}</span>
+               <a href="{% url 'main:logout' %}" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                   Logout
+               </a>
+           {% endif %}
+       </div>
+   </nav>
+   ```
+
+#### b. **Mobile Hamburger Menu**:
+- I added JavaScript to toggle the visibility of the navbar links on mobile when the hamburger button is clicked.
+
+   **JavaScript for mobile menu toggle**:
+   ```javascript
+   const btn = document.querySelector("button.mobile-menu-button");
+   const menu = document.querySelector(".mobile-menu");
+
+   btn.addEventListener("click", () => {
+       menu.classList.toggle("hidden");
+   });
+   ```
+
+###
+
+1. **Add files to staging**:
+   ```bash
+   git add .
+   ```
+
+2. **Commit changes**:
+   ```bash
+   git commit -m "Implemented CSS styling and completed product functionality"
+   ```
+
+3. **Push to GitHub**:
+   ```bash
+   git push origin main
+   ```

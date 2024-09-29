@@ -1,19 +1,24 @@
-{% extends 'main/base.html' %}
+{% extends 'base.html' %}
+
+{% load static %}
 
 {% block content %}
-<h1>Edit Product</h1>
+{% include 'navbar.html' %} 
 
-<form method="POST">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-        <tr>
-            <td></td>
-            <td>
-                <input type="submit" value="Save Changes" />
-            </td>
-        </tr>
-    </table>
-</form>
+<div style="margin-top: 70px;"> <!-- Added margin to prevent overlap with the fixed navbar -->
+    <h1>Edit Product</h1>
 
-{% endblock content %}
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table-auto border-separate">
+            {{ form.as_table }}
+            <tr>
+                <td></td>
+                <td>
+                    <input class="bg-purple-700 text-white py-2 px-4 rounded" type="submit" value="Edit Product"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+{% endblock %}
