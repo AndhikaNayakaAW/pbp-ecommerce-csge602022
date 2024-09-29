@@ -863,20 +863,6 @@ By completing these steps, the project is now able to handle the addition, displ
    git push origin main
    ```
 ```
-Here’s how you can structure and answer the questions in your README.md file in detail:
-
----
-
-# E-Commerce Application - README
-
-## Created by: Andhika Nayaka Arya Wibowo  
-**Student ID:** 2306174135  
-**Course:** KKI CSGE602022 Platform-Based Programming
-
-## Deployed Application Link
-You can access the deployed application [here](http://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/).
-
----
 
 ## Fourth Assignment: Advanced Web Design Concepts
 
