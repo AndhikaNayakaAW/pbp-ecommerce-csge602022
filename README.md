@@ -862,7 +862,6 @@ By completing these steps, the project is now able to handle the addition, displ
    ```bash
    git push origin main
    ```
-```
 
 ## Fourth Assignment: Advanced Web Design Concepts
 
