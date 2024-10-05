@@ -135,7 +135,7 @@ def login_user(request):
         form = AuthenticationForm(request)
 
     context = {'form': form}
-    return render(request, 'login.html', context)
+    return render(request, 'main/login.html', context)
 
 # User logout view
 def logout_user(request):
