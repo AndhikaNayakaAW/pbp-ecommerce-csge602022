@@ -54,7 +54,7 @@ def add_product(request):
             return redirect('main:show_main')  # Redirect to the main page instead of the product list
     else:
         form = ProductForm()
-    return render(request, 'main/add_product.html', {'form': form})
+    return render(request, 'main/create_product_entry.html', {'form': form})
 
 # View to display products on the main page
 @login_required(login_url='/login')
