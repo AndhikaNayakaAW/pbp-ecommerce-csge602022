@@ -134,5 +134,5 @@ else:
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost","http://127.0.0.1","http://<YOUR_PWS_URL>", "https://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost","http://127.0.0.1","http://https://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/", "https://andhika-nayaka-ecommerce.pbp.cs.ui.ac.id/"]
 

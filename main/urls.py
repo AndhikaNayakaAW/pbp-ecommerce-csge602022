@@ -12,7 +12,8 @@ from main.views import (
     logout_user, 
     edit_product,
     delete_product,
-    product_list  # Add this to import the view
+    product_list,  # Add this to import the view
+    add_product_ajax  # Import the add_product_ajax view
 )
 
 app_name = 'main'
@@ -31,4 +32,5 @@ urlpatterns = [
     path('edit-product/<uuid:product_id>', edit_product, name='edit_product'),
     path('delete-product/<uuid:product_id>', delete_product, name='delete_product'),
     path('product-list/', product_list, name='product_list'),  # Added route
+    path('create-product-entry-ajax/', add_product_ajax, name='add_product_ajax'),  # Added AJAX route for product creation
 ]

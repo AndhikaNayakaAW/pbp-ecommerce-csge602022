@@ -1127,3 +1127,341 @@ Together, margin, border, and padding define the spacing and appearance of eleme
    ```bash
    git push origin main
    ```
+
+---
+
+## Fifth Assignment - AJAX and Security
+
+### 1. Explain the benefits of using JavaScript in developing web applications!
+
+JavaScript offers numerous benefits when developing web applications. Some of these include:
+
+- **Client-Side Interactivity**: JavaScript allows developers to create interactive and dynamic web pages. It runs directly in the user's browser, which means that users can interact with elements on the page without needing to reload it. Features like form validation, modals, sliders, and dropdowns can all be implemented using JavaScript.
+  
+- **AJAX for Asynchronous Data Loading**: JavaScript enables web pages to communicate with the server asynchronously through AJAX (Asynchronous JavaScript and XML). This means that parts of a page can be updated dynamically (such as fetching new data or submitting forms) without reloading the entire page, providing a faster and more fluid user experience.
+
+- **Improved User Experience**: By utilizing JavaScript, you can provide instant feedback to users. For instance, form validation can be done in real-time, and users can see errors or success messages without reloading the page.
+
+- **Cross-Browser Support**: JavaScript runs on all modern browsers. With minimal setup, a developer can ensure that their website will function similarly across a wide range of devices and browsers.
+
+- **Event Handling**: JavaScript allows developers to easily manage events (like clicks, scrolls, form submissions, etc.), making it possible to execute code in response to user actions.
+
+- **Rich Ecosystem and Libraries**: JavaScript has a large ecosystem of libraries and frameworks (like React, Angular, and Vue.js) that streamline the process of building large-scale applications. These libraries enable rapid development and maintenance of complex web applications.
+
+---
+
+### 2. Explain why we need to use await when we call fetch()! What would happen if we don't use await?
+
+In JavaScript, `fetch()` is used to make HTTP requests and returns a **promise** that resolves with the `Response` object. When calling `fetch()`, you need to use `await` to ensure the JavaScript engine waits for the promise to resolve (i.e., for the server to send the requested data) before continuing to execute the rest of the code.
+
+#### Why we use `await`:
+- **Handling asynchronous code**: When you use `await`, it pauses the execution of the function until the promise is resolved. This is important when you're expecting data from the server because you typically want to wait until the data is available before processing it.
+  
+- **Readable and clean code**: `await` makes your asynchronous code appear synchronous, improving readability and avoiding the need for messy `then()` and `catch()` chains.
+  
+#### What happens if you don't use `await`:
+- **Code would execute before the response is available**: Without `await`, the code will continue to execute without waiting for the `fetch()` to resolve. This means any operation that depends on the response from `fetch()` will likely fail because the data hasn't been retrieved yet.
+  
+  For example:
+  ```javascript
+  let data = fetch("https://api.example.com/data");
+  console.log(data); // Logs a Promise, not the actual data
+  ```
+  The above code would print a pending promise instead of the fetched data because the promise has not yet been resolved. If `await` was used, the data would be available before the console logs it.
+
+  Correct version:
+  ```javascript
+  let response = await fetch("https://api.example.com/data");
+  let data = await response.json();
+  console.log(data); // Logs the actual data from the response
+  ```
+
+---
+
+### 3. Why do we need to use the csrf_exempt decorator on the view used for AJAX POST?
+
+In Django, CSRF (Cross-Site Request Forgery) protection is enabled by default for all POST requests to protect the application from unauthorized requests. However, when making AJAX POST requests, there are cases where the CSRF token might not be included correctly, which can cause Django to reject the request.
+
+#### Why we use `csrf_exempt`:
+- **Prevent CSRF validation**: The `csrf_exempt` decorator disables the CSRF validation for a specific view. This can be helpful when working with AJAX requests that might not include a CSRF token, especially when you're building an API or handling external clients that aren't designed to send CSRF tokens.
+  
+- **Testing and debugging purposes**: During development, using `csrf_exempt` makes it easier to test AJAX functionality without needing to worry about CSRF token configuration. However, it is not recommended for production applications unless proper measures are taken (like token-based authentication or other security mechanisms).
+
+#### Caution:
+- **Security concerns**: By using `csrf_exempt`, you are making the view vulnerable to CSRF attacks. Therefore, this decorator should be used with caution and only in trusted environments. It is better to include CSRF tokens in your AJAX requests using JavaScript and ensure that the server validates them correctly.
+
+---
+
+### 4. On this week's tutorial, the user input sanitization is done in the back-end as well. Why can't the sanitization be done just in the front-end?
+
+While front-end input sanitization is important for providing a better user experience and catching basic mistakes (like empty fields or invalid formats), it **cannot be solely relied on for security**. The following reasons explain why back-end sanitization is crucial:
+
+#### Reasons for back-end sanitization:
+- **Bypass potential in the front-end**: Front-end validation and sanitization can be easily bypassed by a malicious user. Since JavaScript runs on the client-side, attackers can disable it, manipulate the data, or send raw HTTP requests directly to your server without using your front-end code at all.
+
+- **Security against attacks like XSS and SQL injection**: If you rely solely on front-end sanitization, your application is vulnerable to attacks such as Cross-Site Scripting (XSS) and SQL injection. The server must sanitize and validate any incoming data to ensure it doesn't contain malicious code that could compromise the application.
+
+- **Consistency and integrity of the data**: The back-end is the ultimate source of truth for data handling. By sanitizing inputs on the server, you ensure that any data stored in your database is clean, safe, and formatted correctly, regardless of how it was submitted (whether through your front-end or other external sources like APIs).
+
+#### Example:
+If a malicious user submits a form with `<script>alert('XSS')</script>` in an input field, front-end sanitization could remove or escape the `<script>` tags before sending it to the server. However, if they bypass your front-end and submit the request directly, the server would store the malicious script unless it also performs sanitization (e.g., using `strip_tags()` in Django).
+
+Therefore, **both front-end and back-end sanitization** should be used together for optimal security.
+
+---
+
+### 5. **Explain how you implemented the checklist above step-by-step (not just following the tutorial)!**
+
+#### Step 1: **Modify the previous assignment to use AJAX**
+
+1. **Refactor Views and Templates**:
+   - In my previous assignment, the product data was directly rendered in the template using Django’s context. I modified this approach by shifting product data rendering to be handled asynchronously through **AJAX**.
+   - I first created a new view (`show_json`) that returns the product data in JSON format. This view is essential for making the product data available for JavaScript to fetch asynchronously.
+     ```python
+     def show_json(request):
+         data = Product.objects.filter(user=request.user)
+         return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+     ```
+
+2. **Update the Template**:
+   - In the `main.html` template, I removed the server-side product listing logic and replaced it with an empty table (`<tbody id="product_table_body"></tbody>`), which would be populated dynamically using AJAX.
+   - I also added JavaScript functions (`getProducts()` and `refreshProductList()`) to retrieve and render the product data. The `getProducts()` function makes an AJAX GET request to the `show_json` view to retrieve product data.
+     ```html
+     <script>
+       async function getProducts() {
+           const response = await fetch("{% url 'main:show_json' %}");
+           return response.json();
+       }
+
+       async function refreshProductList() {
+           const productTableBody = document.getElementById("product_table_body");
+           productTableBody.innerHTML = "";  // Clear existing table rows
+
+           const products = await getProducts();
+           products.forEach((item) => {
+               const sanitizedName = DOMPurify.sanitize(item.fields.name);
+               const sanitizedDescription = DOMPurify.sanitize(item.fields.description);
+               const sanitizedRarity = DOMPurify.sanitize(item.fields.rarity);
+               const sanitizedImageURL = DOMPurify.sanitize(item.fields.image_url);
+
+               const productRow = `
+                   <tr>
+                       <td>${sanitizedName}</td>
+                       <td>$${item.fields.price}</td>
+                       <td>${sanitizedDescription} <br> <strong>Rarity:</strong> ${sanitizedRarity}</td>
+                       <td>${item.fields.stock}</td>
+                       <td><img src="${sanitizedImageURL}" alt="${sanitizedName}" class="w-24 h-auto object-cover rounded"></td>
+                       <td>
+                           <a href="/edit-product/${item.pk}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</a>
+                           <a href="/delete-product/${item.pk}" onclick="return confirm('Are you sure?');" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Delete</a>
+                       </td>
+                   </tr>
+               `;
+               productTableBody.insertAdjacentHTML('beforeend', productRow);
+           });
+       }
+
+       document.addEventListener('DOMContentLoaded', refreshProductList);  // Load the product list when the page is ready
+     </script>
+     ```
+
+#### Step 2: **AJAX GET Implementation**
+
+1. **AJAX GET Request for Retrieving Product Data**:
+   - I wrote the `getProducts()` JavaScript function that fetches product data from the `show_json` endpoint using **fetch()**.
+   - The `refreshProductList()` function then uses this data to dynamically populate the product table with the sanitized product information (such as name, description, rarity, stock, and image).
+
+2. **Sanitizing Data with DOMPurify**:
+   - To avoid potential XSS attacks, I used **DOMPurify** to sanitize the product data before displaying it on the page. This ensures that any malicious scripts injected into the product data are removed before being rendered.
+   - I added the following in the `<head>` section of `main.html` to include DOMPurify:
+     ```html
+     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+     ```
+
+#### Step 3: **AJAX POST Implementation**
+
+1. **Create the Modal Form for Adding Products**:
+   - I added a modal that contains a form for adding new products. This modal is hidden by default and is displayed when the user clicks the "Add New Sonny Angel by AJAX" button.
+   - The form inside the modal allows users to input product details such as name, price, description, rarity, stock, and image URL.
+
+   Example modal code in `main.html`:
+   ```html
+   <button onclick="showModal()" class="bg-blue-500 text-white px-4 py-2 rounded">Add New Sonny Angel by AJAX</button>
+
+   <div id="crudModal" class="hidden fixed inset-0 z-50 bg-gray-800 bg-opacity-50">
+       <div id="crudModalContent" class="bg-white rounded-lg shadow-lg w-1/2 mx-auto">
+           <form id="productEntryForm">
+               <label for="name">Product Name</label>
+               <input type="text" id="name" name="name" required>
+               <!-- Other form fields here -->
+               <button type="submit" id="submitProductEntry">Save</button>
+           </form>
+       </div>
+   </div>
+   ```
+
+2. **AJAX POST for Adding New Product**:
+   - I wrote an **AJAX POST** function to submit the form data to the server asynchronously. This function is triggered when the user submits the form inside the modal.
+   - I created a new view (`add_product_ajax()`) in `views.py` to handle the POST request and save the product to the database.
+
+   Example JavaScript code for handling the form submission:
+   ```html
+   <script>
+       async function addProductAjax() {
+           const csrfToken = '{{ csrf_token }}';
+
+           const form = document.getElementById("productEntryForm");
+           const formData = new FormData(form);
+
+           const productData = {
+               name: formData.get("name"),
+               price: formData.get("price"),
+               description: formData.get("description"),
+               rarity: formData.get("rarity"),
+               stock: formData.get("stock"),
+               image_url: formData.get("image_url")
+           };
+
+           const response = await fetch("{% url 'main:add_product_ajax' %}", {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+                   'X-CSRFToken': csrfToken
+               },
+               body: JSON.stringify(productData)
+           });
+
+           if (response.status === 201) {
+               alert("Product added successfully!");
+               hideModal();
+               refreshProductList();  // Refresh the product list to show the new product
+           } else {
+               alert("Failed to add product. Please try again.");
+           }
+       }
+
+       document.getElementById("submitProductEntry").addEventListener("click", function(event) {
+           event.preventDefault();
+           addProductAjax();
+       });
+   </script>
+   ```
+
+3. **Close Modal and Clear Form Upon Success**:
+   - After the product is successfully added, the modal is closed using `hideModal()`, and the form is reset to its default state using `form.reset()`.
+   - The product list is refreshed using `refreshProductList()` to include the newly added product.
+
+#### Step 4: **Create a New View to Add Product with AJAX**
+
+1. **Create the View for Handling AJAX POST**:
+   - In `views.py`, I added a view (`add_product_ajax()`) that processes the incoming product data from the POST request. I used `csrf_exempt` to disable CSRF protection for this view since it is handled by JavaScript.
+   - I sanitized the incoming data using Django’s `strip_tags()` function to prevent XSS attacks from malicious input.
+
+   Example `views.py` code:
+   ```python
+   @csrf_exempt
+   @require_POST
+   def add_product_ajax(request):
+       data = json.loads(request.body)
+
+       name = strip_tags(data.get("name"))
+       price = data.get("price")
+       description = strip_tags(data.get("description"))
+       rarity = strip_tags(data.get("rarity"))
+       stock = data.get("stock")
+       image_url = strip_tags(data.get("image_url"))
+
+       product = Product(name=name, price=price, description=description, rarity=rarity, stock=stock, image_url=image_url, user=request.user)
+       product.save()
+
+       return HttpResponse('CREATED', status=201)
+   ```
+
+#### Step 5: **Create a /create-ajax/ Path for Adding Products**
+
+1. **URL Mapping for the AJAX POST Endpoint**:
+   - I added a new path (`/create-ajax/`) in `urls.py` to map to the `add_product_ajax()` view. This path is used by the AJAX POST function to submit the product data.
+   ```python
+   from . import views
+
+   urlpatterns = [
+       path('create-ajax/', views.add_product_ajax, name='add_product_ajax'),
+       # Other paths...
+   ]
+   ```
+
+#### Step 6: **Perform Asynchronous Page Refresh (continued)**
+
+2. **Dynamically Update the Product List**:
+   - Instead of reloading the entire page, I updated the product list in real-time by calling the `refreshProductList()` function after the AJAX POST request completes successfully. This function uses the AJAX GET request to retrieve the latest product data, ensuring that the new product is included in the list without needing a full page refresh.
+   - This greatly improves user experience by making the application feel more responsive and reducing server load from unnecessary page reloads.
+
+   Example of refreshing the product list after the modal is closed:
+   ```javascript
+   if (response.status === 201) {
+       alert("Product added successfully!");
+       hideModal();  // Close the modal
+       refreshProductList();  // Refresh the product list to show the new product
+   }
+   ```
+
+#### Step 7: **Additional Security and UX Enhancements**
+
+1. **CSRF Token Inclusion**:
+   - Even though we used `csrf_exempt` for the AJAX POST request, this method is not recommended for production environments due to security concerns. Therefore, in a real-world scenario, you should ensure that CSRF tokens are included in your AJAX requests to protect against cross-site request forgery (CSRF) attacks.
+   - In my implementation, I included the CSRF token in the AJAX POST request by adding it to the request headers:
+   ```javascript
+   const csrfToken = '{{ csrf_token }}';  // Fetch the CSRF token from the template context
+   ```
+
+2. **User Feedback and Error Handling**:
+   - I implemented user feedback mechanisms such as displaying success or error alerts when the product is added or if the request fails. For instance, when the AJAX POST request fails (e.g., due to a server error or validation issue), I display an error message to notify the user and prompt them to try again.
+   - I also made sure to handle form validation errors and notify the user if any required fields are missing.
+
+   Example:
+   ```javascript
+   if (response.status !== 201) {
+       alert("Failed to add product. Please try again.");
+   }
+   ```
+
+3. **Form Reset and Modal Closing**:
+   - Once a product is successfully added, the modal is closed, and the form inside the modal is reset to its default state. This ensures that when the user opens the modal again to add another product, the form fields are empty and ready for new input.
+   - The modal closing functionality is triggered using `hideModal()` and the form reset is done using `form.reset()`:
+   ```javascript
+   hideModal();  // Close the modal
+   form.reset();  // Clear form input fields
+   ```
+
+#### Step 8: **Deployment and Final Testing**
+
+1. **Local Testing**:
+   - Before deploying the application, I tested all the functionalities locally. This involved:
+     - Testing the AJAX GET and POST requests to ensure the product data is loaded and submitted correctly.
+     - Verifying that the form input is sanitized both on the front-end (using DOMPurify) and back-end (using `strip_tags()`).
+     - Ensuring that the product list refreshes automatically after a new product is added.
+
+2. **Pushing the Code to GitHub**:
+   - After confirming that all functionalities work as expected, I committed the changes and pushed the code to the remote GitHub repository.
+
+   Commands used for version control:
+   ```bash
+   git add .
+   git commit -m "Implemented AJAX GET and POST for product management, added security features"
+   git push origin main
+   ```
+
+3. **Deploying to the Server**:
+   - Finally, I deployed the updated application to the production server (PWS) to make it live. This involved pushing the code to the server's Git repository and verifying that the deployed application works correctly.
+
+---
+
+### 6. Perform add-commit-push to GitHub
+
+Finally, after implementing the above features, I performed the following Git commands to save the changes and push them to the remote repository:
+
+```bash
+git add .
+git commit -m "assignment 6"
+git push
+```
