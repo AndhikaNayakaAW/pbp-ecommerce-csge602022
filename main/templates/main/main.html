@@ -156,7 +156,14 @@
             const products = await getProducts();
 
             if (products.length === 0) {
-                productTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4">No products available at the moment.</td></tr>`;
+                productTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            No products available at the moment.
+                            <br>
+                            <img src="{% static 'image/very-sad.png' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
+                        </td>
+                    </tr>`;
             } else {
                 products.forEach((item) => {
                     const sanitizedName = DOMPurify.sanitize(item.fields.name);
