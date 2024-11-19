@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core import serializers
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -10,6 +10,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import json
+from main.models import Product
 
 
 from main.forms import ProductForm  # Import the ProductForm
@@ -201,9 +202,65 @@ def add_product_ajax(request):
 
     return HttpResponse('Invalid request method', status=405)
 
-
 # Product list view (Optional, in case needed)
 @login_required(login_url='/login')
 def product_list(request):
     products = Product.objects.filter(user=request.user)
     return render(request, 'main/main.html', {'products': products})
+
+@csrf_exempt
+def create_product_flutter(request):
+    if request.method == 'POST':
+        try:
+            # Parse JSON data from Flutter
+            data = json.loads(request.body)
+            
+            # Extract data
+            name = data.get('name', '').strip()
+            price = data.get('price')
+            description = data.get('description', '').strip()
+            rarity = data.get('rarity', '').strip()
+            stock = data.get('stock')
+            image_url = data.get('image_url', '').strip()
+
+            # Validate input data
+            if not all([name, price, description, rarity, stock, image_url]):
+                return JsonResponse({
+                    "status": False,
+                    "message": "All fields are required."
+                }, status=400)
+
+            # Check if the user is authenticated
+            if not request.user.is_authenticated:
+                return JsonResponse({
+                    "status": False,
+                    "message": "User not authenticated."
+                }, status=401)
+
+            # Create and save the product
+            product = Product.objects.create(
+                name=name,
+                price=price,
+                description=description,
+                rarity=rarity,
+                stock=stock,
+                image_url=image_url,
+                user=request.user  # Associate product with logged-in user
+            )
+
+            return JsonResponse({
+                "status": True,
+                "message": "Product created successfully!",
+                "product_id": product.id
+            }, status=201)
+
+        except Exception as e:
+            return JsonResponse({
+                "status": False,
+                "message": f"An error occurred: {str(e)}"
+            }, status=500)
+
+    return JsonResponse({
+        "status": False,
+        "message": "Invalid request method."
+    }, status=405)

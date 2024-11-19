@@ -13,7 +13,8 @@ from main.views import (
     edit_product,
     delete_product,
     product_list,  # Add this to import the view
-    add_product_ajax  # Import the add_product_ajax view
+    add_product_ajax,  # Import the add_product_ajax view
+    create_product_flutter
 )
 
 app_name = 'main'
@@ -33,4 +34,5 @@ urlpatterns = [
     path('delete-product/<uuid:product_id>', delete_product, name='delete_product'),
     path('product-list/', product_list, name='product_list'),  # Added route
     path('create-product-entry-ajax/', add_product_ajax, name='add_product_ajax'),  # Added AJAX route for product creation
+    path('create-flutter/', create_product_flutter, name='create_product_flutter'),
 ]
